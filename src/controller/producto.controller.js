@@ -22,7 +22,7 @@ export const postProducto = async (req, res) => {
             if (errorCategoria) {
                 console.error('Error al verificar la categoría:', errorCategoria);
                 return res.status(500).json({ message: 'Error al verificar la categoría' });
-                
+
             }
 
             //si no existe la categoria devolvemos un error
@@ -59,20 +59,110 @@ export const postProducto = async (req, res) => {
 
 }
 
-export const obtenerTodosLosProductos = async (req,res)=>{
+export const obtenerTodosLosProductos = async (req, res) => {
     try {
-        const query = 'SELECT * FROM productos';
+        //obtener todos los productos y traer el nombre de la categoria
+        const query = 'SELECT p.idProductos, p.nombre_producto, p.precio_costo, p.descripcion, p.precio_venta, c.nombre_categoria, p.cantidad_producto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos';
         db.query(query, (error, results) => {
             if (error) {
                 console.error('Error al obtener los productos:', error);
                 return res.status(500).json({ message: 'Error al obtener los productos' });
             }
             //todos los codigos 200 son exitosos
-            res.status(200).json({message: 'Productos obtenidos exitosamente', productos: results});
+            res.status(200).json({ message: 'Productos obtenidos exitosamente', productos: results });
         });
     } catch (error) {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
     }
 }
 
- 
+export const obtenerProductosPorID = async (req, res) => {
+    //obtenemos el id del producto que queres mostrar
+    const { id } = req.params;
+
+    try {
+
+        //verificamos que el id sea un numero
+        if (isNaN(id)) {
+            return res.status(400).json({ message: 'El ID debe ser un número' });
+        }
+
+        //creamos la query para obtener el producto por id
+
+        const obtenerProductoPorID = 'SELECT p.idProductos, p.nombre_producto, p.precio_costo, p.descripcion, p.precio_venta, c.nombre_categoria, p.cantidad_producto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos WHERE p.idProductos = ?';
+        //ejecutamos la consulta
+        db.query(obtenerProductoPorID, [id], (error, results) => {
+            if (error) {
+                console.error('Error al obtener el producto por ID:', error);
+                return res.status(500).json({ message: 'Error al obtener el producto' });
+            }
+            //verificamos si el producto existe
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Producto no encontrado' });
+            }
+            //si el producto existe devolvemos el producto
+            res.status(200).json({ message: 'Producto obtenido exitosamente', producto: results[0] });
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+}
+
+export const obtenerProductosPorCategoria = async (req, res) => {
+    //obtenemos el nombre de la categoria que queres mostrar
+    const { nombre_categoria } = req.params;
+
+    //verificamos que el nombre de la categoria no este vacio
+    if (!nombre_categoria) {
+        return res.status(400).json({ message: 'El nombre de la categoría es obligatorio' });
+    }
+
+    try {
+        //verificamos que la categoria exista en la base de datos
+        const verificarCategoria = 'SELECT idCat_productos FROM cat_productos WHERE nombre_categoria = ?';
+
+        db.query(verificarCategoria, [nombre_categoria], (error, results) => {
+            if (error) {
+                console.error('Error al verificar la categoría:', error);
+                return res.status(500).json({ message: 'Error al verificar la categoría' });
+            }
+
+            //verificamos si la categoria existe
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Categoría no encontrada' });
+            }
+
+            //creamos la query para obtener los productos por categoria
+            const productosPorCategoria = `SELECT p.idProductos, p.nombre_producto, p.precio_costo, p.descripcion, p.precio_venta, c.nombre_categoria, p.cantidad_producto
+            FROM productos p
+            JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos
+            WHERE c.nombre_categoria = ?`;
+
+            //ejecutamos la consulta para obtener productos
+            db.query(productosPorCategoria, [nombre_categoria], (errorProductos, resultsProductos) => {
+                if (errorProductos) {
+                    console.error('Error al obtener productos por categoría:', errorProductos);
+                    return res.status(500).json({
+                        message: 'Error al obtener los productos por categoria',
+                        error: errorProductos.message
+                    });
+                }
+
+                //verificamos si existen productos en la categoria
+                if (resultsProductos.length === 0) {
+                    return res.status(404).json({ message: 'No se encontraron productos en esta categoría' });
+                }
+
+                //si existen productos en la categoria devolvemos los productos
+                res.status(200).json({ 
+                    message: 'Productos obtenidos exitosamente', 
+                    productos: resultsProductos 
+                });
+            });
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+}
+
