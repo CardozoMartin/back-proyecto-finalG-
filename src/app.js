@@ -3,6 +3,14 @@ import express from 'express'
 import db from './config/database.js'
 import dotenv from 'dotenv'
 import routerProductos from './routes/producots.routes.js'
+import routerProveedores from './routes/proveedores.routes.js'
+import routerCategorias from './routes/categorias.routes.js'
+import routerEmpleados from "./routes/empleados.routes.js"
+import routerClientes from './routes/clientes.routes.js'
+
+import cors from 'cors'
+
+
 
 
 //iniciamos dotenv para poder llamar las variables de entorn
@@ -23,6 +31,13 @@ db.connect((err) => {
 //inicializamos la variable express
 const app = express()
 
+//configuramos los cors para los permisos de acceso
+app.use(cors({
+    origin: '*', // Permite todas las solicitudes de origen
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
+}));
+
 
 // creamos el puerto
 const PORT = process.env.PORT || 3000
@@ -33,8 +48,14 @@ app.use(express.json())
 
 //importamos las rutas
 
-app.use('/api/productos', routerProductos)
-app.use('/api/clientes', routerProductos) // Asegúrate de que esta ruta sea correcta
+
+app.use('/api/proveedores', routerProveedores)
+app.use('/api/productos', routerProductos);
+app.use('/api/categorias', routerCategorias);
+app.use('/api/clientes', routerClientes)
+app.use('/api/empleados', routerEmpleados) 
+
+
 
 //Iniciamos el servidor
 app.listen(PORT, () => {
