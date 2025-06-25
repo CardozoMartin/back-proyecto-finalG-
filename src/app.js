@@ -27,6 +27,7 @@ db.connect((err) => {
 })
 
 
+
 //inicializamos la variable express
 const app = express()
 
