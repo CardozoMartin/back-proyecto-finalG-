@@ -3,7 +3,13 @@ import express from 'express'
 import db from './config/database.js'
 import dotenv from 'dotenv'
 import routerProductos from './routes/producots.routes.js'
-import cors from 'cors'
+import routerProveedores from './routes/proveedores.routes.js'
+import routerCategorias from './routes/categorias.routes.js'
+import routerEmpleados from "./routes/empleados.routes.js"
+import routerClientes from './routes/clientes.routes.js'
+
+
+
 
 //iniciamos dotenv para poder llamar las variables de entorn
 dotenv.config() 
@@ -39,8 +45,14 @@ app.use(express.json())
 
 //importamos las rutas
 
-app.use('/api/productos', routerProductos)
-app.use('/api/clientes', routerProductos) // Asegúrate de que esta ruta sea correcta
+
+app.use('/api/proveedores', routerProveedores)
+app.use('/api/productos', routerProductos);
+app.use('/api/categorias', routerCategorias);
+app.use('/api/clientes', routerProductos)
+app.use('/', routerEmpleados) 
+
+
 
 //Iniciamos el servidor
 app.listen(PORT, () => {
