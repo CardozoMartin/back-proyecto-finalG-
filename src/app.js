@@ -8,6 +8,8 @@ import routerCategorias from './routes/categorias.routes.js'
 import routerEmpleados from "./routes/empleados.routes.js"
 import routerClientes from './routes/clientes.routes.js'
 
+import cors from 'cors'
+
 
 
 
@@ -49,8 +51,8 @@ app.use(express.json())
 app.use('/api/proveedores', routerProveedores)
 app.use('/api/productos', routerProductos);
 app.use('/api/categorias', routerCategorias);
-app.use('/api/clientes', routerProductos)
-app.use('/', routerEmpleados) 
+app.use('/api/clientes', routerClientes)
+app.use('/api/empleados', routerEmpleados) 
 
 
 

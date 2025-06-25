@@ -4,7 +4,7 @@ import db from '../config/database.js';
 export const crearCliente = async (req, res) => {
     try {
         // obtener los datos del body
-        const {Nombre, Apellido, DNI, Telefono,Email,Domicilio,Estado} = req.body;
+        const { Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado } = req.body;
 
         //validamos que los datos no esten vacios
         if (!Nombre || !Apellido || !DNI || !Telefono || !Email || !Domicilio || !Estado) {
@@ -14,8 +14,8 @@ export const crearCliente = async (req, res) => {
 
         //llamas ala base de datos para inser el cliente
 
-        db.query(query,[Nombre,Apellido,DNI,Telefono,Email,Domicilio,Estado], (error, results) => {
-            if(error){
+        db.query(query, [Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado], (error, results) => {
+            if (error) {
                 console.error('Error al insertar el cliente:', error);
                 return res.status(500).json({ message: 'Error al insertar el cliente' });
             }
@@ -24,13 +24,13 @@ export const crearCliente = async (req, res) => {
             //si todo esta okey
             res.status(201).json({
                 message: 'Cliente creado exitosamente',
-                cliente: datosCLientes 
+                cliente: datosCLientes
             });
         });
-    
-          
+
+
     } catch (error) {
-        
+
     }
 }
 
@@ -53,9 +53,10 @@ export const ObtenerTodosLosClientes = async (req, res) => {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
     }
 }
- export const EliminarCliente = async (req, res) => {
+
+export const EliminarCliente = async (req, res) => {
     try {
-        const {idClientes} = req.params;
+        const { idClientes } = req.params;
 
         // Verificar si el ID es válido
         if (!idClientes) {
@@ -80,8 +81,9 @@ export const ObtenerTodosLosClientes = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
     }
- }
- export const ActualizarCliente = async (req, res) => {
+}
+
+export const ActualizarCliente = async (req, res) => {
     try {
         const { idClientes } = req.params;
         const { Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado } = req.body;
