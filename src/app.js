@@ -3,7 +3,7 @@ import express from 'express'
 import db from './config/database.js'
 import dotenv from 'dotenv'
 import routerProductos from './routes/producots.routes.js'
-
+import cors from 'cors'
 
 //iniciamos dotenv para poder llamar las variables de entorn
 dotenv.config() 
@@ -21,6 +21,13 @@ db.connect((err) => {
 
 //inicializamos la variable express
 const app = express()
+
+//configuramos los cors para los permisos de acceso
+app.use(cors({
+    origin: '*', // Permite todas las solicitudes de origen
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
+}));
 
 
 // creamos el puerto
