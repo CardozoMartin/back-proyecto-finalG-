@@ -5,11 +5,11 @@ import db from '../config/database.js';
 export const postProducto = async (req, res) => {
 
     //obtener los datos del body
-    const { nombre_producto, precio_costo, descripcion, precio_venta, nombre_categoria, cantidad_producto } = req.body;
+    const { nombre_producto, precio_costo, descripcion, precio_venta, nombre_categoria, cantidad_producto, imagen_producto } = req.body;
 
 
     //validamos que los datos no esten vacios
-    if (!nombre_producto || !precio_costo || !descripcion || !precio_venta || !nombre_categoria || !cantidad_producto) {
+    if (!nombre_producto || !precio_costo || !descripcion || !precio_venta || !nombre_categoria || !cantidad_producto || !imagen_producto) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -34,10 +34,10 @@ export const postProducto = async (req, res) => {
             const Cat_productos_idCat_productos = resultsCategoria[0].idCat_productos;
 
             //insertamos el producto en la base de datos
-            const queryInsert = 'INSERT INTO productos (nombre_producto, precio_costo, descripcion, precio_venta, Cat_productos_idCat_productos, cantidad_producto) VALUES (?, ?, ?, ?, ?, ?)';
+            const queryInsert = 'INSERT INTO productos (nombre_producto, precio_costo, descripcion, precio_venta, Cat_productos_idCat_productos, cantidad_producto , imagen_producto) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
             //ejecutamos la consulta para insertar el producto
-            db.query(queryInsert, [nombre_producto, precio_costo, descripcion, precio_venta, Cat_productos_idCat_productos, cantidad_producto], (errorInsert, resultsInsert) => {
+            db.query(queryInsert, [nombre_producto, precio_costo, descripcion, precio_venta, Cat_productos_idCat_productos, cantidad_producto, imagen_producto], (errorInsert, resultsInsert) => {
                 if (errorInsert) {
                     console.error('Error al insertar el producto:', errorInsert);
                     return res.status(500).json({ message: 'Error al insertar el producto' });
@@ -62,7 +62,7 @@ export const postProducto = async (req, res) => {
 export const obtenerTodosLosProductos = async (req, res) => {
     try {
         //obtener todos los productos y traer el nombre de la categoria
-        const query = 'SELECT p.idProductos, p.nombre_producto, p.precio_costo, p.descripcion, p.precio_venta, c.nombre_categoria, p.cantidad_producto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos';
+        const query = 'SELECT p.idProductos, p.nombre_producto, p.precio_costo, p.descripcion, p.precio_venta, p.imagen_producto, c.nombre_categoria, p.cantidad_producto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos';
         db.query(query, (error, results) => {
             if (error) {
                 console.error('Error al obtener los productos:', error);

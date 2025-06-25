@@ -4,17 +4,17 @@ import db from '../config/database.js';
 export const crearCliente = async (req, res) => {
     try {
         // obtener los datos del body
-        const { Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado } = req.body;
+        const { Nombre, Apellido, DNI, Telefono, Email, Domicilio } = req.body;
 
         //validamos que los datos no esten vacios
-        if (!Nombre || !Apellido || !DNI || !Telefono || !Email || !Domicilio || !Estado) {
+        if (!Nombre || !Apellido || !DNI || !Telefono || !Email || !Domicilio ) {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
-        const query = 'INSERT INTO clientes (Nombre,Apellido,DNI,Telefono,Email,Domicilio,Estado) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO clientes (Nombre,Apellido,DNI,Telefono,Email,Domicilio) VALUES (?, ?, ?, ?, ?, ?)';
 
         //llamas ala base de datos para inser el cliente
 
-        db.query(query, [Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado], (error, results) => {
+        db.query(query, [Nombre, Apellido, DNI, Telefono, Email, Domicilio], (error, results) => {
             if (error) {
                 console.error('Error al insertar el cliente:', error);
                 return res.status(500).json({ message: 'Error al insertar el cliente' });
