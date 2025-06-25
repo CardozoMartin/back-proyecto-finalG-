@@ -2,16 +2,16 @@ import db from '../config/database.js';
 
 export const postProveedor = async (req, res) => {
 
-    const { NombreProveedor, TelefonoProveedor, EmailProveedor,DomicilioProveedor } = req.body;
+    const { nombreProveedores, telefonoProveedores, emailProveedores,domicilioProveedores } = req.body;
 
-    if (!NombreProveedor || !TelefonoProveedor || !EmailProveedor || !DomicilioProveedor) {
+    if (!nombreProveedores || !telefonoProveedores || !emailProveedores || !domicilioProveedores) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
     try {
-        const queryInsert = 'INSERT INTO proveedores (NombreProveedor, TelefonoProveedor, EmailProveedor, DomicilioProveedor) VALUES (?, ?, ?, ?)';
+        const queryInsert = 'INSERT INTO proveedores (nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores) VALUES (?, ?, ?, ?)';
 
-        db.query(queryInsert, [NombreProveedor, TelefonoProveedor, EmailProveedor, DomicilioProveedor], (errorInsert, resultsInsert) => {
+        db.query(queryInsert, [nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores], (errorInsert, resultsInsert) => {
             if (errorInsert) {
                 console.error('Error al insertar el proveedor:', errorInsert);
                 return res.status(500).json({ message: 'Error al insertar el proveedor' });
@@ -71,12 +71,12 @@ export const obtenerProveedorPorId = async (req, res) => {
 }   
 
 export const obtenerProveedorPorTel = async (req, res) => {
-    const { TelefonoProveedor } = req.params;
+    const { telefonoProveedores } = req.params;
 
     try {
-        const querySelect = 'SELECT * FROM proveedores WHERE TelefonoProveedor = ?';
+        const querySelect = 'SELECT * FROM proveedores WHERE telefonoProveedores = ?';
 
-        db.query(querySelect, [TelefonoProveedor], (errorSelect, resultsSelect) => {
+        db.query(querySelect, [telefonoProveedores], (errorSelect, resultsSelect) => {
             if (errorSelect) {
                 console.error('Error al obtener el proveedor:', errorSelect);
                 return res.status(500).json({ message: 'Error al obtener el proveedor' });
@@ -95,10 +95,10 @@ export const obtenerProveedorPorTel = async (req, res) => {
 }
 
 export const obtenerProveedorPorEmail = async (req, res) => {
-    const { EmailProveedor } = req.params;
+    const { emailProveedores } = req.params;
     try {
-        const querySelect = 'SELECT * FROM proveedores WHERE EmailProveedor = ?';
-        db.query(querySelect, [EmailProveedor], (errorSelect, resultsSelect) => {
+        const querySelect = 'SELECT * FROM proveedores WHERE emailProveedores = ?';
+        db.query(querySelect, [emailProveedores], (errorSelect, resultsSelect) => {
             if (errorSelect) {
                 console.error('Error al obtener el proveedor:', errorSelect);
                 return res.status(500).json({ message: 'Error al obtener el proveedor' });
@@ -114,10 +114,10 @@ export const obtenerProveedorPorEmail = async (req, res) => {
 }
 
 export const obtenerProveedorPorNombre = async (req, res) => {
-    const { NombreProveedor } = req.params;
+    const { nombreProveedores } = req.params;
     try {
-        const querySelect = 'SELECT * FROM proveedores WHERE NombreProveedor = ?';
-        db.query(querySelect, [NombreProveedor], (errorSelect, resultsSelect) => {
+        const querySelect = 'SELECT * FROM proveedores WHERE nombreProveedores = ?';
+        db.query(querySelect, [nombreProveedores], (errorSelect, resultsSelect) => {
             if (errorSelect) {
                 console.error('Error al obtener el proveedor:', errorSelect);
                 return res.status(500).json({ message: 'Error al obtener el proveedor' });
@@ -134,16 +134,16 @@ export const obtenerProveedorPorNombre = async (req, res) => {
 
 export const actualizarProveedor = async (req, res) => {
     const { idProveedores } = req.params;
-    const { NombreProveedor, TelefonoProveedor, EmailProveedor, DomicilioProveedor } = req.body;
+    const { nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores } = req.body;
 
-    if (!NombreProveedor || !TelefonoProveedor || !EmailProveedor || !DomicilioProveedor) {
+    if (!nombreProveedores || !telefonoProveedores || !emailProveedores || !domicilioProveedores) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
     try {
-        const queryUpdate = 'UPDATE proveedores SET NombreProveedor = ?, TelefonoProveedor = ?, EmailProveedor = ?, DomicilioProveedor = ? WHERE idProveedores = ?';
+        const queryUpdate = 'UPDATE proveedores SET nombreProveedores = ?, telefonoProveedores = ?, emailProveedores = ?, domicilioProveedores = ? WHERE idProveedores = ?';
 
-        db.query(queryUpdate, [NombreProveedor, TelefonoProveedor, EmailProveedor, DomicilioProveedor, idProveedores], (errorUpdate, resultsUpdate) => {
+        db.query(queryUpdate, [nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores, idProveedores], (errorUpdate, resultsUpdate) => {
             
             if (errorUpdate) {
                 console.error('Error al actualizar el proveedor:', errorUpdate);

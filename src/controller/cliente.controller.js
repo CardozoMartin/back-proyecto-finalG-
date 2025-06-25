@@ -4,17 +4,17 @@ import db from '../config/database.js';
 export const crearCliente = async (req, res) => {
     try {
         // obtener los datos del body
-        const { Nombre, Apellido, DNI, Telefono, Email, Domicilio } = req.body;
+        const { nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente } = req.body;
 
         //validamos que los datos no esten vacios
-        if (!Nombre || !Apellido || !DNI || !Telefono || !Email || !Domicilio ) {
+        if (!nombreCliente || !apellidoCliente || !DNI || !telefonoCliente || !emailCliente || !domicilioCliente) {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
-        const query = 'INSERT INTO clientes (Nombre,Apellido,DNI,Telefono,Email,Domicilio) VALUES (?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO clientes (nombreCliente,apellidoCliente,DNI,telefonoCliente,emailCliente,domicilioCliente) VALUES (?, ?, ?, ?, ?, ?)';
 
         //llamas ala base de datos para inser el cliente
 
-        db.query(query, [Nombre, Apellido, DNI, Telefono, Email, Domicilio], (error, results) => {
+        db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente], (error, results) => {
             if (error) {
                 console.error('Error al insertar el cliente:', error);
                 return res.status(500).json({ message: 'Error al insertar el cliente' });
@@ -86,16 +86,16 @@ export const EliminarCliente = async (req, res) => {
 export const ActualizarCliente = async (req, res) => {
     try {
         const { idClientes } = req.params;
-        const { Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado } = req.body;
+        const { nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente } = req.body;
 
         // Validar que el ID y los datos no estén vacíos
-        if (!idClientes || !Nombre || !Apellido || !DNI || !Telefono || !Email || !Domicilio || !Estado) {
+        if (!idClientes || !nombreCliente || !apellidoCliente || !DNI || !telefonoCliente || !emailCliente || !domicilioCliente) {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
 
-        const query = 'UPDATE Clientes SET Nombre = ?, Apellido = ?, DNI = ?, Telefono = ?, Email = ?, Domicilio = ?, Estado = ? WHERE idClientes = ?';
+        const query = 'UPDATE Clientes SET nombreCliente = ?, apellidoCliente = ?, DNI = ?, telefonoCliente = ?, emailCliente = ?, domicilioCliente = ?, WHERE idClientes = ?';
 
-        db.query(query, [Nombre, Apellido, DNI, Telefono, Email, Domicilio, Estado, idClientes], (error, results) => {
+        db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente, idClientes], (error, results) => {
             if (error) {
                 console.error('Error al actualizar el cliente:', error);
                 return res.status(500).json({ message: 'Error al actualizar el cliente' });

@@ -3,18 +3,18 @@ import db from '../config/database.js';
 
 export const postCategoria = async (req, res) => {
     
-    const { Nombre_categoria } = req.body;
+    const { nombreCategoria } = req.body;
 
   
-    if (!Nombre_categoria) {
+    if (!nombreCategoria) {
         return res.status(400).json({ message: 'El nombre de la categoría es obligatorio' });
     }
 
     try {
       
-        const queryCategoria = 'SELECT idCat_productos, Nombre_categoria FROM Cat_productos WHERE Nombre_categoria = ?';
+        const queryCategoria = 'SELECT idCat_productos, nombreCategoria FROM Cat_productos WHERE nombreCategoria = ?';
 
-        db.query(queryCategoria, [Nombre_categoria], (errorCategoria, resultsCategoria) => {
+        db.query(queryCategoria, [nombreCategoria], (errorCategoria, resultsCategoria) => {
             if (errorCategoria) {
                 console.error('Error al verificar la categoría:', errorCategoria);
                 return res.status(500).json({ message: 'Error al verificar la categoría' });
@@ -26,9 +26,9 @@ export const postCategoria = async (req, res) => {
             }
 
           
-            const queryInsert = 'INSERT INTO Cat_productos (Nombre_categoria) VALUES (?)';
+            const queryInsert = 'INSERT INTO Cat_productos (nombreCategoria) VALUES (?)';
 
-            db.query(queryInsert, [Nombre_categoria], (errorInsert, resultsInsert) => {
+            db.query(queryInsert, [nombreCategoria], (errorInsert, resultsInsert) => {
                 if (errorInsert) {
                     console.error('Error al insertar la categoría:', errorInsert);
                     return res.status(500).json({ message: 'Error al insertar la categoría' });
@@ -39,7 +39,7 @@ export const postCategoria = async (req, res) => {
                     message: 'Categoría creada exitosamente',
                     categoria: {
                         idCat_productos: resultsInsert.insertId,
-                        Nombre_categoria
+                        nombreCategoria
                     }
                 });
             });
@@ -90,10 +90,10 @@ export const obtenerCategoriaPorId = async (req, res) => {
 
 export const actualizarCategoria = async (req, res) => {
     const { id } = req.params;
-    const { Nombre_categoria } = req.body;
+    const { nombreCategoria } = req.body;
 
     
-    if (!Nombre_categoria) {
+    if (!nombreCategoria) {
         return res.status(400).json({ message: 'El nombre de la categoría es obligatorio' });
     }
 
@@ -110,8 +110,8 @@ export const actualizarCategoria = async (req, res) => {
                 return res.status(404).json({ message: 'Categoría no encontrada' });
             }
 
-            const queryUpdate = 'UPDATE Cat_productos SET Nombre_categoria = ? WHERE idCat_productos = ?';
-            db.query(queryUpdate, [Nombre_categoria, id], (errorUpdate, resultsUpdate) => {
+            const queryUpdate = 'UPDATE Cat_productos SET nombreCategoria = ? WHERE idCat_productos = ?';
+            db.query(queryUpdate, [nombreCategoria, id], (errorUpdate, resultsUpdate) => {
                 if (errorUpdate) {
                     console.error('Error al actualizar la categoría:', errorUpdate);
                     return res.status(500).json({ message: 'Error al actualizar la categoría' });
@@ -119,7 +119,7 @@ export const actualizarCategoria = async (req, res) => {
 
                 res.status(200).json({
                     message: 'Categoría actualizada exitosamente',
-                    categoria: { idCat_productos: id, Nombre_categoria }
+                    categoria: { idCat_productos: id, nombreCategoria }
                 });
             });
         });
