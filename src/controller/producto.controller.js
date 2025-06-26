@@ -15,7 +15,7 @@ export const postProducto = async (req, res) => {
 
     try {
         //verificamos que exista la categoria del producto
-        const queryCategoria = 'SELECT idCat_productos, nombreCategoria FROM cat_productos WHERE nombreCategoria = ?';
+        const queryCategoria = 'SELECT idCat_productos, nombreCategoriaProductos FROM cat_productos WHERE nombreCategoriaProductos = ?';
 
         //ejecutamos la consulta para verificar la categoria
         db.query(queryCategoria, [nombreCategoria], (errorCategoria, resultsCategoria) => {
