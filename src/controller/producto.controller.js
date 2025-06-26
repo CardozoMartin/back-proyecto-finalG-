@@ -5,11 +5,11 @@ import db from '../config/database.js';
 export const postProducto = async (req, res) => {
 
     //obtener los datos del body
-    const { nombreProducto, precioCostos, descripcion, precioVenta, nombreCategoria, cantidadProducto, imagenProducto } = req.body;
+    const { nombreProducto, precioCosto, descripcion, precioVenta, nombreCategoria, cantidadProducto, imagenProducto } = req.body;
 
 
     //validamos que los datos no esten vacios
-    if (!nombreProducto || !precioCostos || !descripcion || !precioVenta || !nombreCategoria || !cantidadProducto || !imagenProducto) {
+    if (!nombreProducto || !precioCosto || !descripcion || !precioVenta || !nombreCategoria || !cantidadProducto || !imagenProducto) {
         return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
 
@@ -34,10 +34,10 @@ export const postProducto = async (req, res) => {
             const Cat_productos_idCat_productos = resultsCategoria[0].idCat_productos;
 
             //insertamos el producto en la base de datos
-            const queryInsert = 'INSERT INTO productos (nombreProducto, precioCostos, descripcion, precioVenta, Cat_productos_idCat_productos, cantidadProducto , imagenProducto) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            const queryInsert = 'INSERT INTO productos (nombreProducto, precioCosto, descripcion, precioVenta, Cat_productos_idCat_productos, cantidadProducto , imagenProducto) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
             //ejecutamos la consulta para insertar el producto
-            db.query(queryInsert, [nombreProducto, precioCostos, descripcion, precioVenta, Cat_productos_idCat_productos, cantidadProducto, imagenProducto], (errorInsert, resultsInsert) => {
+            db.query(queryInsert, [nombreProducto, precioCosto, descripcion, precioVenta, Cat_productos_idCat_productos, cantidadProducto, imagenProducto], (errorInsert, resultsInsert) => {
                 if (errorInsert) {
                     console.error('Error al insertar el producto:', errorInsert);
                     return res.status(500).json({ message: 'Error al insertar el producto' });
@@ -58,7 +58,7 @@ export const postProducto = async (req, res) => {
 export const obtenerTodosLosProductos = async (req, res) => {
     try {
         //obtener todos los productos y traer el nombre de la categoria
-        const query = 'SELECT p.idProductos, p.nombreProducto, p.precioCostos, p.descripcion, p.precioVenta, p.imagenProducto, c.nombreCategoria, p.cantidadProducto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos';
+        const query = 'SELECT p.idProductos, p.nombreProducto, p.precioCosto, p.descripcion, p.precioVenta, p.imagenProducto, c.nombreCategoriaProductos, p.cantidadProducto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos';
         db.query(query, (error, results) => {
             if (error) {
                 console.error('Error al obtener los productos:', error);
@@ -85,7 +85,7 @@ export const obtenerProductosPorID = async (req, res) => {
 
         //creamos la query para obtener el producto por id
 
-        const obtenerProductoPorID = 'SELECT p.idProductos, p.nombreProducto, p.precioCostos, p.descripcion, p.precioVenta, c.nombreCategoria, p.cantidadProducto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos WHERE p.idProductos = ?';
+        const obtenerProductoPorID = 'SELECT p.idProductos, p.nombreProducto, p.precioCosto, p.descripcion, p.precioVenta, c.nombreCategoria, p.cantidadProducto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos WHERE p.idProductos = ?';
         //ejecutamos la consulta
         db.query(obtenerProductoPorID, [id], (error, results) => {
             if (error) {
@@ -129,7 +129,7 @@ export const obtenerProductosPorCategoria = async (req, res) => {
             }
 
             //creamos la query para obtener los productos por categoria
-            const productosPorCategoria = `SELECT p.idProductos, p.nombreProducto, p.precioCostos, p.descripcion, p.precioVenta, c.nombreCategoria, p.cantidadProducto
+            const productosPorCategoria = `SELECT p.idProductos, p.nombreProducto, p.precioCosto, p.descripcion, p.precioVenta, c.nombreCategoria, p.cantidadProducto
             FROM productos p
             JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos
             WHERE c.nombreCategoria = ?`;
@@ -166,7 +166,7 @@ export const actualizarProducto = async (req,res)=>{
     //primero traemos el id del producto que quremos actualizar
     const { id} = req.params;
     //obtenemos los datos a actualizar del body
-    const { nombreProducto, precioCostos, descripcion, precioVenta, nombreCategoria, cantidadProducto } = req.body;
+    const { nombreProducto, precioCosto, descripcion, precioVenta, nombreCategoria, cantidadProducto } = req.body;
     try {
         //generamos la query para verificar que exista el producto
 
@@ -185,10 +185,10 @@ export const actualizarProducto = async (req,res)=>{
                 return res.status(404).json({ message: 'Producto no encontrado' });
             }
             //si todo esta  bien, procedemos a actualizar el producto
-            const queryActualizarProducto = 'update productos set nombreProducto = ?, precioCostos = ?, descripcion = ?, precioVenta = ?, cantidadProducto = ? where idProductos = ?';
+            const queryActualizarProducto = 'update productos set nombreProducto = ?, precioCosto = ?, descripcion = ?, precioVenta = ?, cantidadProducto = ? where idProductos = ?';
 
             //ejecutamos la consulta para actualizar el producto
-            db.query(queryActualizarProducto, [nombreProducto, precioCostos, descripcion, precioVenta, cantidadProducto, id], (errorActualizar, resultsActualizar) => {
+            db.query(queryActualizarProducto, [nombreProducto, precioCosto, descripcion, precioVenta, cantidadProducto, id], (errorActualizar, resultsActualizar) => {
                 if (errorActualizar) {
                     console.error('Error al actualizar el producto:', errorActualizar);
                     return res.status(500).json({ message: 'Error al actualizar el producto' });
