@@ -3,32 +3,45 @@ import db from "../config/database.js";
 export const crearEmpleado = async (req, res) => {
   try {
     // obtener los datos del body
-
     const nombreEmpleado = req.body.nombreEmpleado;
     const apellidoEmpleado = req.body.apellidoEmpleado;
     const DNI = req.body.DNI;
     const telefonoEmpleado = req.body.telefonoEmpleado;
-    const emailCliente = req.body.emailCliente;
-    const domicilioCliente = req.body.domicilioCliente;
-    const estadoCliente = req.body.estadoCliente;
-    const idCat_empleado = req.body.idCat_empleado;
+    const emailEmpleado = req.body.emailEmpleado;
+    const domicilioEmpleado = req.body.domicilioEmpleado;
+    const estadoEmpleado = req.body.estadoEmpleado;
+    const idCat_empleados = 1;
 
-    const query =
-      "INSERT INTO empleados (nombreEmpleado, apellidoEmpleado, emailCliente, telefonoEmpleado, DNI, domicilioCliente, estadoCliente, idCat_empleados) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Validación de campos vacíos o solo espacios
+    if (
+      !nombreEmpleado || nombreEmpleado.trim() === "" ||
+      !apellidoEmpleado || apellidoEmpleado.trim() === "" ||
+      !DNI || DNI.toString().trim() === "" ||
+      !telefonoEmpleado || telefonoEmpleado.toString().trim() === "" ||
+      !emailEmpleado || emailEmpleado.trim() === "" ||
+      !domicilioEmpleado || domicilioEmpleado.trim() === "" ||
+      !estadoEmpleado || estadoEmpleado.trim() === ""
+    ) {
+      return res.status(400).json({ message: "No se permiten campos vacíos" });
+    }
 
-    //llamas ala base de datos para inser el cliente
+    const query = `
+      INSERT INTO empleados 
+        (nombreEmpleado, apellidoEmpleado, DNI, telefonoEmpleado, emailEmpleado, domicilioEmpleado, estadoEmpleado, idCat_empleados) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
     db.query(
       query,
       [
         nombreEmpleado,
         apellidoEmpleado,
-        emailCliente,
-        telefonoEmpleado,
         DNI,
-        domicilioCliente,
-        estadoCliente,
-        idCat_empleado,
+        telefonoEmpleado,
+        emailEmpleado,
+        domicilioEmpleado,
+        estadoEmpleado,
+        idCat_empleados,
       ],
       (error, results) => {
         if (error) {
@@ -38,8 +51,6 @@ export const crearEmpleado = async (req, res) => {
             .json({ message: "Error al insertar el empleado" });
         }
 
-        const datosEmpleados = results[0];
-        //si todo esta okey
         res.status(201).json({
           message: "Empleado creado exitosamente",
           idInsertado: results.insertId,
@@ -55,15 +66,29 @@ export const crearEmpleado = async (req, res) => {
 export const obtenerTodosLosEmpleados = async (req, res) => {
   try {
     const query = `
-      SELECT e.*, c.nombreEmpleado AS categorianombreEmpleado, c.Rol AS categoriaRol
-      FROM empleados e
-      INNER JOIN cat_empleados c ON e.idCat_empleados = c.idCat_empleados
+   SELECT 
+  e.idEmpleados,
+  e.nombreEmpleado,
+  e.apellidoEmpleado,
+  e.DNI,
+  e.telefonoEmpleado,
+  e.emailEmpleado,
+  e.domicilioEmpleado,
+  e.estadoEmpleado,
+  c.nombreCategoriaEmpleado,
+  c.rol AS categoriaRol
+FROM Empleados e
+INNER JOIN Cat_empleados c 
+  ON e.idCat_empleados = c.idCat_empleados;
+
     `;
 
     db.query(query, (error, results) => {
       if (error) {
         console.error("Error al obtener los empleados:", error);
-        return res.status(500).json({ message: "Error al obtener los empleados" });
+        return res
+          .status(500)
+          .json({ message: "Error al obtener los empleados" });
       }
       res.status(200).json({
         message: "Empleados obtenidos exitosamente",
@@ -78,36 +103,76 @@ export const obtenerTodosLosEmpleados = async (req, res) => {
 
 export const actualizarEmpleado = async (req, res) => {
   try {
-    const id = req.params.id;
+    const { idEmpleados } = req.params;
     const {
       nombreEmpleado,
       apellidoEmpleado,
       DNI,
       telefonoEmpleado,
-      emailCliente,
-      domicilioCliente,
-      estadoCliente,
-      idCat_empleados
+      emailEmpleado,
+      domicilioEmpleado,
+      estadoEmpleado,
+      idCat_empleados,
     } = req.body;
 
-
+    if (
+      !nombreEmpleado ||
+      !apellidoEmpleado ||
+      !DNI ||
+      !telefonoEmpleado ||
+      !emailEmpleado ||
+      !domicilioEmpleado ||
+      !estadoEmpleado ||
+      !idCat_empleados
+    ) {
+      return res.status(400).json({ message: "Faltan campos requeridos" });
+    }
 
     const query = `
       UPDATE empleados
-      SET nombreEmpleado = ?, apellidoEmpleado = ?, DNI = ?, telefonoEmpleado = ?, emailCliente = ?, domicilioCliente = ?, estadoCliente = ?, idCat_empleados = ?
+      SET nombreEmpleado = ?, apellidoEmpleado = ?, DNI = ?, telefonoEmpleado = ?, emailEmpleado= ?, domicilioEmpleado = ?, estadoEmpleado = ?, idCat_empleados = ?
       WHERE idEmpleados = ?
     `;
 
-    db.query(query, [nombreEmpleado, apellidoEmpleado, DNI, telefonoEmpleado, emailCliente, domicilioCliente, estadoCliente, idCat_empleados, id], (error, results) => {
-      if (error) {
-        console.error("Error al actualizar el empleado:", error);
-        return res.status(500).json({ message: "Error al actualizar el empleado" });
+    db.query(
+      query,
+      [
+        nombreEmpleado,
+        apellidoEmpleado,
+        DNI,
+        telefonoEmpleado,
+        emailEmpleado,
+        domicilioEmpleado,
+        estadoEmpleado,
+        idCat_empleados,
+        idEmpleados,
+      ],
+      (error, results) => {
+        if (error) {
+          console.error("Error al actualizar el empleado:", error);
+          return res
+            .status(500)
+            .json({ message: "Error al actualizar el empleado" });
+        }
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ message: "Empleado no encontrado" });
+        }
+        res.status(200).json({
+          message: "Empleado actualizado exitosamente",
+          empleado: {
+            idEmpleados,
+            nombreEmpleado,
+            apellidoEmpleado,
+            DNI,
+            telefonoEmpleado,
+            emailEmpleado,
+            domicilioEmpleado,
+            estadoEmpleado,
+            idCat_empleados,
+          },
+        });
       }
-      res.status(200).json({
-        message: "Empleado actualizado exitosamente",
-        empleado: { id, nombreEmpleado, apellidoEmpleado, DNI, telefonoEmpleado, emailCliente, domicilioCliente, estadoCliente, idCat_empleados }
-      });
-    });
+    );
   } catch (error) {
     console.error("Error en la actualización del empleado:", error);
     res.status(500).json({ message: "Error en la actualización del empleado" });
@@ -115,23 +180,175 @@ export const actualizarEmpleado = async (req, res) => {
 };
 
 export const eliminarEmpleado = async (req, res) => {
-  try {
-    const id = req.params.id;
+  const { idEmpleados } = req.params;
 
-    const query = "DELETE FROM empleados WHERE idEmpleados = ?";
+  const query = "DELETE FROM empleados WHERE idEmpleados = ?";
 
-    db.query(query, [id], (error, results) => {
-      if (error) {
-        console.error("Error al eliminar el empleado:", error);
-        return res.status(500).json({ message: "Error al eliminar el empleado" });
-      }
-      res.status(200).json({
-        message: "Empleado eliminado exitosamente",
-        empleado: { id },
-      });
+  db.query(query, [idEmpleados], (error, results) => {
+    if (error) {
+      console.error("Error al eliminar el empleado:", error);
+      return res.status(500).json({ message: "Error al eliminar el empleado" });
+    }
+
+    if (results.affectedRows === 0) {
+      
+      return res.status(404).json({ message: "Empleado no encontrado" });
+    }
+
+    return res.status(200).json({
+      message: "Empleado eliminado exitosamente",
+      idEliminado: idEmpleados,
     });
-  } catch (error) {
-    console.error("Error en la eliminación del empleado:", error);
-    res.status(500).json({ message: "Error en la eliminación del empleado" });
-  }
+  });
 };
+
+export const obtenerEmpleadoPorId = async (req, res) => {
+  const { idEmpleados } = req.params;
+
+  const query = `
+    SELECT 
+      e.idEmpleados,
+      e.nombreEmpleado,
+      e.apellidoEmpleado,
+      e.DNI,
+      e.telefonoEmpleado,
+      e.emailEmpleado,
+      e.domicilioEmpleado,
+      e.estadoEmpleado,
+      c.nombreCategoriaEmpleado,
+      c.rol AS categoriaRol
+    FROM Empleados e
+    INNER JOIN Cat_empleados c 
+      ON e.idCat_empleados = c.idCat_empleados
+    WHERE e.idEmpleados = ?
+  `;
+
+  db.query(query, [idEmpleados], (error, results) => {
+    if (error) {
+      console.error("Error al obtener el empleado:", error);
+      return res.status(500).json({ message: "Error al obtener el empleado" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Empleado no encontrado" });
+    }
+
+    res.status(200).json({
+      message: "Empleado obtenido exitosamente",
+      empleado: results[0],
+    });
+  });
+};
+
+export const obtenerEmpleadosPorCategoria = async (req, res) => {
+  const { idCat_empleados } = req.params;
+
+  const query = `
+    SELECT 
+      e.idEmpleados,
+      e.nombreEmpleado,
+      e.apellidoEmpleado,
+      e.DNI,
+      e.telefonoEmpleado,
+      e.emailEmpleado,
+      e.domicilioEmpleado,
+      e.estadoEmpleado,
+      c.nombreCategoriaEmpleado,
+      c.rol AS categoriaRol
+    FROM Empleados e
+    INNER JOIN Cat_empleados c 
+      ON e.idCat_empleados = c.idCat_empleados
+    WHERE c.idCat_empleados = ?
+  `;
+
+  db.query(query, [idCat_empleados], (error, results) => {
+    if (error) {
+      console.error("Error al obtener los empleados por categoría:", error);
+      return res.status(500).json({ message: "Error al obtener los empleados por categoría" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No se encontraron empleados para esta categoría" });
+    }
+
+    res.status(200).json({
+      message: "Empleados obtenidos exitosamente",
+      empleados: results,
+    });
+  });
+}
+
+export const obtenerEmpleadosPorDNI = async (req, res) => {
+  const { DNI } = req.params;
+
+  const query = `
+    SELECT 
+      e.idEmpleados,
+      e.nombreEmpleado,
+      e.apellidoEmpleado,
+      e.DNI,
+      e.telefonoEmpleado,
+      e.emailEmpleado,
+      e.domicilioEmpleado,
+      e.estadoEmpleado,
+      c.nombreCategoriaEmpleado,
+      c.rol AS categoriaRol
+    FROM Empleados e
+    INNER JOIN Cat_empleados c 
+      ON e.idCat_empleados = c.idCat_empleados
+    WHERE e.DNI = ?
+  `;
+
+  db.query(query, [DNI], (error, results) => {
+    if (error) {
+      console.error("Error al obtener el empleado por DNI:", error);
+      return res.status(500).json({ message: "Error al obtener el empleado por DNI" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Empleado no encontrado" });
+    }
+
+    res.status(200).json({
+      message: "Empleado obtenido exitosamente",
+      empleado: results[0],
+    });
+  });
+}
+export const obtenerEmpleadosPorNombre = async (req, res) => {
+  const { nombreEmpleado } = req.params;
+
+  const query = `
+    SELECT 
+      e.idEmpleados,
+      e.nombreEmpleado,
+      e.apellidoEmpleado,
+      e.DNI,
+      e.telefonoEmpleado,
+      e.emailEmpleado,
+      e.domicilioEmpleado,
+      e.estadoEmpleado,
+      c.nombreCategoriaEmpleado,
+      c.rol AS categoriaRol
+    FROM Empleados e
+    INNER JOIN Cat_empleados c 
+      ON e.idCat_empleados = c.idCat_empleados
+    WHERE e.nombreEmpleado LIKE ?
+  `;
+
+  db.query(query, [`%${nombreEmpleado}%`], (error, results) => {
+    if (error) {
+      console.error("Error al obtener el empleado por nombre:", error);
+      return res.status(500).json({ message: "Error al obtener el empleado por nombre" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Empleado no encontrado" });
+    }
+
+    res.status(200).json({
+      message: "Empleado obtenido exitosamente",
+      empleado: results[0],
+    });
+  });
+}
