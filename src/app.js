@@ -7,6 +7,7 @@ import routerProveedores from './routes/proveedores.routes.js'
 import routerCategorias from './routes/categorias.routes.js'
 import routerEmpleados from "./routes/empleados.routes.js"
 import routerClientes from './routes/clientes.routes.js'
+import routerLogin from './routes/login.routes.js'
 
 import cors from 'cors'
 
@@ -54,7 +55,7 @@ app.use('/api/productos', routerProductos);
 app.use('/api/categorias', routerCategorias);
 app.use('/api/clientes', routerClientes)
 app.use('/api/empleados', routerEmpleados) 
-
+app.use('/api/login',routerLogin)
 
 
 //Iniciamos el servidor
