@@ -13,17 +13,16 @@ export const crearCliente = async (req, res) => {
         }
 
         // Encriptar la contraseña antes de guardarla
-        const saltRounds = 10;
-        const constraseñaEncriptada = await bcrypt.hash(contraseña, saltRounds);
+       
 
 
-
+        
 
         const query = 'INSERT INTO clientes (nombreCliente,apellidoCliente,DNI,telefonoCliente,emailCliente,domicilioCliente,contraseña) VALUES (?, ?, ?, ?, ?, ?,?)';
 
         //llamas ala base de datos para inser el cliente
 
-        db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente, constraseñaEncriptada], (error, results) => {
+        db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente,contraseña ], (error, results) => {
             if (error) {
                 console.error('Error al insertar el cliente:', error);
                 return res.status(500).json({ message: 'Error al insertar el cliente' });
