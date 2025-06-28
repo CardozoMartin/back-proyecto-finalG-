@@ -2,7 +2,6 @@ import db from "../config/database.js";
 
 export const crearEmpleado = async (req, res) => {
   try {
-    // obtener los datos del body
     const nombreEmpleado = req.body.nombreEmpleado;
     const apellidoEmpleado = req.body.apellidoEmpleado;
     const DNI = req.body.DNI;
@@ -25,38 +24,87 @@ export const crearEmpleado = async (req, res) => {
       return res.status(400).json({ message: "No se permiten campos vacíos" });
     }
 
-    const query = `
-      INSERT INTO empleados 
-        (nombreEmpleado, apellidoEmpleado, DNI, telefonoEmpleado, emailEmpleado, domicilioEmpleado, estadoEmpleado, idCat_empleados) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    // Validar email duplicado
+    const emailQuery = "SELECT * FROM empleados WHERE emailEmpleado = ?";
+    db.query(emailQuery, [emailEmpleado], (error, results) => {
+      if (error) {
+        console.error("Error al validar email:", error);
+        return res.status(500).json({ message: "Error al validar email" });
+      }
+      if (results.length > 0) {
+        return res.status(400).json({ message: "El email ya está registrado" });
+      }
 
-    db.query(
-      query,
-      [
-        nombreEmpleado,
-        apellidoEmpleado,
-        DNI,
-        telefonoEmpleado,
-        emailEmpleado,
-        domicilioEmpleado,
-        estadoEmpleado,
-        idCat_empleados,
-      ],
-      (error, results) => {
+      // Validar DNI duplicado
+      const dniQuery = "SELECT * FROM empleados WHERE DNI = ?";
+      db.query(dniQuery, [DNI], (error, results) => {
         if (error) {
-          console.error("Error al insertar el empleado:", error);
-          return res
-            .status(500)
-            .json({ message: "Error al insertar el empleado" });
+          console.error("Error al validar DNI:", error);
+          return res.status(500).json({ message: "Error al validar DNI" });
+        }
+        if (results.length > 0) {
+          return res.status(400).json({ message: "El DNI ya está registrado" });
         }
 
-        res.status(201).json({
-          message: "Empleado creado exitosamente",
-          idInsertado: results.insertId,
+        // Validar teléfono duplicado
+        const telQuery = "SELECT * FROM empleados WHERE telefonoEmpleado = ?";
+        db.query(telQuery, [telefonoEmpleado], (error, results) => {
+          if (error) {
+            console.error("Error al validar teléfono:", error);
+            return res.status(500).json({ message: "Error al validar teléfono" });
+          }
+          if (results.length > 0) {
+            return res.status(400).json({ message: "El teléfono ya está registrado" });
+          }
+
+          // Validar nombre completo duplicado
+          const nombreQuery = "SELECT * FROM empleados WHERE nombreEmpleado = ? AND apellidoEmpleado = ?";
+          db.query(nombreQuery, [nombreEmpleado, apellidoEmpleado], (error, results) => {
+            if (error) {
+              console.error("Error al validar nombre completo:", error);
+              return res.status(500).json({ message: "Error al validar nombre completo" });
+            }
+            if (results.length > 0) {
+              return res.status(400).json({ message: "El nombre completo ya está registrado" });
+            }
+
+            // Si todo está bien, insertar el empleado
+            const query = `
+              INSERT INTO empleados 
+                (nombreEmpleado, apellidoEmpleado, DNI, telefonoEmpleado, emailEmpleado, domicilioEmpleado, estadoEmpleado, idCat_empleados) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            db.query(
+              query,
+              [
+                nombreEmpleado,
+                apellidoEmpleado,
+                DNI,
+                telefonoEmpleado,
+                emailEmpleado,
+                domicilioEmpleado,
+                estadoEmpleado,
+                idCat_empleados,
+              ],
+              (error, results) => {
+                if (error) {
+                  console.error("Error al insertar el empleado:", error);
+                  return res
+                    .status(500)
+                    .json({ message: "Error al insertar el empleado" });
+                }
+
+                res.status(201).json({
+                  message: "Empleado creado exitosamente",
+                  idInsertado: results.insertId,
+                });
+              }
+            );
+          });
         });
-      }
-    );
+      });
+    });
   } catch (error) {
     console.error("Error en la creación del empleado:", error);
     res.status(500).json({ message: "Error en la creación del empleado" });
@@ -79,7 +127,9 @@ export const obtenerTodosLosEmpleados = async (req, res) => {
   c.rol AS categoriaRol
 FROM Empleados e
 INNER JOIN Cat_empleados c 
-  ON e.idCat_empleados = c.idCat_empleados;
+  ON e.idCat_empleados = c.idCat_empleados
+  ORDER BY e.idEmpleados DESC
+  ;
 
     `;
 
