@@ -1,6 +1,6 @@
 import Router from 'express';
 
-import { actualizarProducto, borradoLogico, eliminarProducto, obtenerProductosPorCategoria, obtenerProductosPorID, obtenerTodosLosProductos, postProducto } from '../controller/producto.controller.js';
+import { actualizarProducto, borradoLogico, eliminarProducto, ObtenerProductoPorNombre, obtenerProductosPorCategoria, obtenerProductosPorID, obtenerTodosLosProductos, postProducto } from '../controller/producto.controller.js';
 
 
 
