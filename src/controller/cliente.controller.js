@@ -1,5 +1,5 @@
 import db from '../config/database.js';
-import bcrypt from 'bcryptjs';
+
 
 
 export const crearCliente = async (req, res) => {
@@ -8,21 +8,56 @@ export const crearCliente = async (req, res) => {
         const { nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente,contraseña} = req.body;
 
         //validamos que los datos no esten vacios
-        if (!nombreCliente || !apellidoCliente || !DNI || !telefonoCliente || !emailCliente || !domicilioCliente) {
+        if (!nombreCliente || nombreCliente.trim() === '' ||
+            !apellidoCliente || apellidoCliente.trim() === '' ||
+            !DNI || DNI.toSting().trim() === '' ||
+            !telefonoCliente || telefonoCliente.toString().trim() === '' ||
+            !emailCliente || emailCliente.trim() === '' ||
+            !domicilioCliente || domicilioCliente.trim() === '' )
+            {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
 
-        // Encriptar la contraseña antes de guardarla
-       
 
-
-        
-
-        const query = 'INSERT INTO clientes (nombreCliente,apellidoCliente,DNI,telefonoCliente,emailCliente,domicilioCliente,contraseña) VALUES (?, ?, ?, ?, ?, ?,?)';
+        const query = 'INSERT INTO Clientes (nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente, contraseña) VALUES (?, ?, ?, ?, ?, ?, ?)';
+ 
+        // validar email duplicado
+        const emailQuery = 'SELECT * FROM Clientes WHERE emailCliente = ?';
+        db.query(emailQuery, [emailCliente], (error, results) => {
+            if (error) {
+                console.error('Error al verificar el email:', error);
+                return res.status(500).json({ message: "Error al verificar el email" });
+            }
+            if (results.length > 0) {
+                return res.status(400).json({ message: "Email ya existe" });
+            }
+        });
+        // validar DNI duplicado
+        const dniQuery = 'SELECT * FROM Clientes WHERE DNI = ?';
+        db.query(dniQuery, [DNI], (error, results) => {
+            if (error) {
+                console.error('Error al verificar el DNI:', error);
+                return res.status(500).json({ message: "Error al verificar el DNI" });
+            }
+            if (results.length > 0) {
+                return res.status(400).json({ message: "DNI ya existe" });
+            }
+        });
+        // validar telefono duplicado
+        const telefonoQuery = 'SELECT * FROM Clientes WHERE telefonoCliente = ?';
+        db.query(telefonoQuery, [telefonoCliente], (error, results) => {  
+            if (error) {
+                console.error('Error al verificar el telefono:', error);
+                return res.status(500).json({ message: "Error al verificar el telefono" });
+            }
+            if (results.length > 0) {
+                return res.status(400).json({ message: "Telefono ya existe" });
+            }
+        });
 
         //llamas ala base de datos para inser el cliente
+        db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente,contraseña], (error, results) => {
 
-        db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente,contraseña ], (error, results) => {
             if (error) {
                 console.error('Error al insertar el cliente:', error);
                 return res.status(500).json({ message: 'Error al insertar el cliente' });
@@ -83,6 +118,8 @@ export const EliminarCliente = async (req, res) => {
             if (results.affectedRows === 0) {
                 return res.status(404).json({ message: 'Cliente no encontrado' });
             }
+
+            // usar length
 
             res.status(200).json({ message: 'Cliente eliminado exitosamente' });
         });
