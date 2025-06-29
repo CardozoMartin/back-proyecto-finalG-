@@ -247,3 +247,47 @@ export const eliminarProducto = async(req,res)=>{
     }
 }
 
+export const borradoLogico = async(req,res)=>{
+    const { id} = req.params
+    console.log(id);
+
+    //verifcamos que el id sea un numero
+    if( isNaN(id)) {
+        return res.status(400).json({ message: 'El ID debe ser un número' });
+    }
+
+    try {
+        const buscarProducto = 'SELECT idProductos FROM productos WHERE idProductos = ?';
+        db.query(buscarProducto, [id], (errorBusqueda, resultadoBusqueda) =>
+        {
+            if (errorBusqueda) {
+                console.error('Error al buscar el producto:', errorBusqueda);
+                return res.status(500).json({ message: 'Error al buscar el producto' });
+            }
+
+            //verificamos si el producto existe
+            if (resultadoBusqueda.length === 0) {
+                return res.status(404).json({ message: 'Producto no encontrado' });
+            }
+
+            //si el producto existe, procedemos a actualizarlo
+            const queryBorradoLogico = 'UPDATE productos SET estadoProducto = 0 WHERE idProductos = ?';
+
+            //ejecutamos la consulta para actualizar el estado del producto
+            db.query(queryBorradoLogico, [id], (errorActualizar, resultadoActualizar) => {
+                if (errorActualizar) {
+                    console.error('Error al actualizar el estado del producto:', errorActualizar);
+                    return res.status(500).json({ message: 'Error al actualizar el estado del producto' });
+                }
+
+                //si la actualizacion fue exitosa devolvemos un mensaje de exito
+                res.status(200).json({ message: 'Producto eliminado exitosamente' });
+            });
+        }
+    );
+    } catch (error) {
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+
+}
+
