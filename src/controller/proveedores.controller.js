@@ -1,6 +1,7 @@
 import db from '../config/database.js';
 
 export const postProveedor = async (req, res) => {
+
   const { nombreProveedores, TelefonoProveedores, EmailProveedores, DomicilioProveedores } = req.body;
 
   if (!nombreProveedores || !TelefonoProveedores || !EmailProveedores || !DomicilioProveedores) {
@@ -46,6 +47,7 @@ export const postProveedor = async (req, res) => {
 
         res.status(201).json({
           message: 'Proveedor creado exitosamente',
+
         });
       });
     });
@@ -161,6 +163,7 @@ export const obtenerProveedorPorNombre = async (req, res) => {
 }
 
 export const actualizarProveedor = async (req, res) => {
+
   const { idProveedores } = req.params;
   const {
     nombreProveedores,
@@ -226,6 +229,7 @@ export const actualizarProveedor = async (req, res) => {
             idProveedores,
           ],
           (errorUpdate, resultsUpdate) => {
+
             if (errorUpdate) {
               console.error("Error al actualizar el proveedor:", errorUpdate);
               return res.status(500).json({ message: "Error al actualizar el proveedor" });

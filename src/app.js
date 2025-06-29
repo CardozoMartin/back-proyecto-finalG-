@@ -7,6 +7,9 @@ import routerProveedores from './routes/proveedores.routes.js'
 import routerCategorias from './routes/categorias.routes.js'
 import routerEmpleados from "./routes/empleados.routes.js"
 import routerClientes from './routes/clientes.routes.js'
+import routerLogin from './routes/login.routes.js'
+import routerVentas from './routes/ventas.routes.js'
+import cors from 'cors'
 
 
 
@@ -25,8 +28,16 @@ db.connect((err) => {
 })
 
 
+
 //inicializamos la variable express
 const app = express()
+
+//configuramos los cors para los permisos de acceso
+app.use(cors({
+    origin: '*', // Permite todas las solicitudes de origen
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
+}));
 
 
 // creamos el puerto
@@ -42,9 +53,10 @@ app.use(express.json())
 app.use('/api/proveedores', routerProveedores)
 app.use('/api/productos', routerProductos);
 app.use('/api/categorias', routerCategorias);
-app.use('/api/clientes', routerProductos)
-app.use('/', routerEmpleados) 
-
+app.use('/api/clientes', routerClientes)
+app.use('/api/empleados', routerEmpleados) 
+app.use('/api/login',routerLogin)
+app.use('/api/ventas', routerVentas)
 
 
 //Iniciamos el servidor
