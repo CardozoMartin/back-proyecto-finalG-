@@ -2,30 +2,60 @@ import db from '../config/database.js';
 
 export const postProveedor = async (req, res) => {
 
-    const { nombreProveedores, telefonoProveedores, emailProveedores,domicilioProveedores } = req.body;
+  const { nombreProveedores, TelefonoProveedores, EmailProveedores, DomicilioProveedores } = req.body;
 
-    if (!nombreProveedores || !telefonoProveedores || !emailProveedores || !domicilioProveedores) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
+  if (!nombreProveedores || !TelefonoProveedores || !EmailProveedores || !DomicilioProveedores) {
+    return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+  }
 
-    try {
-        const queryInsert = 'INSERT INTO proveedores (nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores) VALUES (?, ?, ?, ?)';
+  try {
+    const queryExiste = `
+      SELECT * FROM proveedores
+      WHERE EmailProveedores = ? OR TelefonoProveedores = ? OR DomicilioProveedores = ?
+      LIMIT 1
+    `;
 
-        db.query(queryInsert, [nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores], (errorInsert, resultsInsert) => {
-            if (errorInsert) {
-                console.error('Error al insertar el proveedor:', errorInsert);
-                return res.status(500).json({ message: 'Error al insertar el proveedor' });
-            }
+    db.query(queryExiste, [EmailProveedores, TelefonoProveedores, DomicilioProveedores], (errorExiste, resultsExiste) => {
+      if (errorExiste) {
+        console.error('Error al consultar proveedor:', errorExiste);
+        return res.status(500).json({ message: 'Error al verificar datos duplicados' });
+      }
 
-            res.status(201).json({
-                message: 'Proveedor creado exitosamente',
-            });
+      if (resultsExiste.length > 0) {
+    
+        const existente = resultsExiste[0];
+
+        if (existente.EmailProveedores === EmailProveedores) {
+          return res.status(400).json({ message: 'El email ya está registrado.' });
+        }
+        if (existente.TelefonoProveedores === TelefonoProveedores) {
+          return res.status(400).json({ message: 'El teléfono ya está registrado.' });
+        }
+        if (existente.DomicilioProveedores === DomicilioProveedores) {
+          return res.status(400).json({ message: 'El domicilio ya está registrado.' });
+        }
+      }
+
+      // 2. Si no hay duplicados, insertar el nuevo proveedor
+      const queryAgregar = 'INSERT INTO proveedores (nombreProveedores, TelefonoProveedores, EmailProveedores, DomicilioProveedores) VALUES (?, ?, ?, ?)';
+
+      db.query(queryAgregar, [nombreProveedores, TelefonoProveedores, EmailProveedores, DomicilioProveedores], (errorInsert, resultsInsert) => {
+        if (errorInsert) {
+          console.error('Error al insertar el proveedor:', errorInsert);
+          return res.status(500).json({ message: 'Error al insertar el proveedor' });
+        }
+
+        res.status(201).json({
+          message: 'Proveedor creado exitosamente',
+
         });
+      });
+    });
 
-    } catch (error) {
-        res.status(500).json({ message: 'Error del servidor', error: error.message });
-    }
-}
+  } catch (error) {
+    res.status(500).json({ message: 'Error del servidor', error: error.message });
+  }
+};
 
 export const obtenerTodosLosProveedores = async (req, res) => {
     try {
@@ -133,35 +163,94 @@ export const obtenerProveedorPorNombre = async (req, res) => {
 }
 
 export const actualizarProveedor = async (req, res) => {
-    const { idProveedores } = req.params;
-    const { nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores } = req.body;
 
-    if (!nombreProveedores || !telefonoProveedores || !emailProveedores || !domicilioProveedores) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-    }
+  const { idProveedores } = req.params;
+  const {
+    nombreProveedores,
+    TelefonoProveedores,
+    EmailProveedores,
+    DomicilioProveedores,
+  } = req.body;
 
-    try {
-        const queryUpdate = 'UPDATE proveedores SET nombreProveedores = ?, telefonoProveedores = ?, emailProveedores = ?, domicilioProveedores = ? WHERE idProveedores = ?';
+  if (
+    !nombreProveedores ||
+    !TelefonoProveedores ||
+    !EmailProveedores ||
+    !DomicilioProveedores
+  ) {
+    return res.status(400).json({ message: "Todos los campos son obligatorios" });
+  }
 
-        db.query(queryUpdate, [nombreProveedores, telefonoProveedores, emailProveedores, domicilioProveedores, idProveedores], (errorUpdate, resultsUpdate) => {
-            
+  try {
+    const queryExiste = `
+      SELECT * FROM proveedores
+      WHERE (EmailProveedores = ? OR TelefonoProveedores = ? OR DomicilioProveedores = ?)
+      AND idProveedores != ?
+      LIMIT 1
+    `;
+
+    db.query(
+      queryExiste,
+      [EmailProveedores, TelefonoProveedores, DomicilioProveedores, idProveedores],
+      (errorExiste, resultsExiste) => {
+        if (errorExiste) {
+          console.error("Error al consultar proveedor:", errorExiste);
+          return res.status(500).json({ message: "Error al verificar datos duplicados" });
+        }
+
+        if (resultsExiste.length > 0) {
+          const existente = resultsExiste[0];
+
+          if (existente.EmailProveedores === EmailProveedores) {
+            return res.status(400).json({ message: "El email ya está registrado." });
+          }
+          if (existente.TelefonoProveedores === TelefonoProveedores) {
+            return res.status(400).json({ message: "El teléfono ya está registrado." });
+          }
+          if (existente.DomicilioProveedores === DomicilioProveedores) {
+            return res.status(400).json({ message: "El domicilio ya está registrado." });
+          }
+        }
+
+        // Si no hay duplicados, actualizamos
+        const queryUpdate = `
+          UPDATE proveedores
+          SET nombreProveedores = ?, TelefonoProveedores = ?, EmailProveedores = ?, DomicilioProveedores = ?
+          WHERE idProveedores = ?
+        `;
+
+        db.query(
+          queryUpdate,
+          [
+            nombreProveedores,
+            TelefonoProveedores,
+            EmailProveedores,
+            DomicilioProveedores,
+            idProveedores,
+          ],
+          (errorUpdate, resultsUpdate) => {
+
             if (errorUpdate) {
-                console.error('Error al actualizar el proveedor:', errorUpdate);
-                return res.status(500).json({ message: 'Error al actualizar el proveedor' });
+              console.error("Error al actualizar el proveedor:", errorUpdate);
+              return res.status(500).json({ message: "Error al actualizar el proveedor" });
             }
-            if (resultsUpdate.affectedRows === 0) {
-                return res.status(404).json({ message: 'Proveedor no encontrado' });
-            }
-            
-            res.status(200).json({
-                message: 'Proveedor actualizado exitosamente',
-            });
-        });
 
-    } catch (error) {
-        res.status(500).json({ message: 'Error del servidor', error: error.message });
-    }
-}
+            if (resultsUpdate.affectedRows === 0) {
+              return res.status(404).json({ message: "Proveedor no encontrado" });
+            }
+
+            res
+              .status(200)
+              .json({ message: "Proveedor actualizado exitosamente" });
+          }
+        );
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Error del servidor", error: error.message });
+  }
+};
+
 
 export const eliminarProveedor = async (req, res) => {
     const { idProveedores } = req.params;
