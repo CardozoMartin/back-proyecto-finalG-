@@ -18,6 +18,7 @@ export const crearCliente = async (req, res) => {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
 
+
         const query = 'INSERT INTO Clientes (nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente, contraseña) VALUES (?, ?, ?, ?, ?, ?, ?)';
  
         // validar email duplicado
@@ -56,6 +57,7 @@ export const crearCliente = async (req, res) => {
 
         //llamas ala base de datos para inser el cliente
         db.query(query, [nombreCliente, apellidoCliente, DNI, telefonoCliente, emailCliente, domicilioCliente,contraseña], (error, results) => {
+
             if (error) {
                 console.error('Error al insertar el cliente:', error);
                 return res.status(500).json({ message: 'Error al insertar el cliente' });
