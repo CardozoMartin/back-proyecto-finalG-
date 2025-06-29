@@ -1,6 +1,7 @@
 import db from '../config/database.js';
 
 export const postProveedor = async (req, res) => {
+//para validar se puede utilizar la familia zod yup happy joi
 
   const { nombreProveedores, TelefonoProveedores, EmailProveedores, DomicilioProveedores } = req.body;
 
@@ -99,6 +100,15 @@ export const obtenerProveedorPorId = async (req, res) => {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
     }
 }   
+
+
+//funcion que agregue hash a contraseñas que no lo tienen
+// buscar todas las contraseñas que no tengan encriptacion 
+//selct * from like "%$2b"
+//array con las q no tienen encriptacion 
+//for encriptas hash(10)
+
+//compare()
 
 export const obtenerProveedorPorTel = async (req, res) => {
     const { telefonoProveedores } = req.params;

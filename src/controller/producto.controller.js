@@ -72,6 +72,32 @@ export const obtenerTodosLosProductos = async (req, res) => {
     }
 }
 
+export const ObtenerProductoPorNombre = async (req, res) => {
+    //obtenemos el nombre del producto que queres mostrar
+    const { nombreProducto } = req.params;
+    try {
+        // creamos la query para obtener el producto por nombre
+        const query = 'SELECT p.idProductos, p.nombreProducto, p.precioCosto, p.descripcion, p.precioVenta, p.cantidadProducto, c.nombreCategoriaProductos FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos WHERE p.nombreProducto LIKE ?';
+        //verificamos que el nombre del producto no este vacio
+        db.query(query, [`%${nombreProducto}%`], (error, results) => {
+            if (error) {
+                console.error('Error al obtener el producto por nombre:', error);
+                return res.status(500).json({ message: 'Error al obtener el producto' });
+            }
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Producto no encontrado' });
+            }
+            //si el producto existe devolvemos el producto
+            res.status(200).json({
+                message: 'Producto obtenido exitosamente',
+                producto: results
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error del servidor', error: error.message });
+    }
+}
+
 export const obtenerProductosPorID = async (req, res) => {
     //obtenemos el id del producto que queres mostrar
     const { id } = req.params;
@@ -85,7 +111,7 @@ export const obtenerProductosPorID = async (req, res) => {
 
         //creamos la query para obtener el producto por id
 
-        const obtenerProductoPorID = 'SELECT p.idProductos, p.nombreProducto, p.precioCosto, p.descripcion, p.precioVenta, c.nombreCategoria, p.cantidadProducto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos WHERE p.idProductos = ?';
+        const obtenerProductoPorID = 'SELECT p.idProductos, p.nombreProducto, p.precioCosto, p.descripcion, p.precioVenta, c.nombreCategoriaProductos, p.cantidadProducto FROM productos p JOIN cat_productos c ON p.Cat_productos_idCat_productos = c.idCat_productos WHERE p.idProductos = ?';
         //ejecutamos la consulta
         db.query(obtenerProductoPorID, [id], (error, results) => {
             if (error) {
