@@ -1,15 +1,19 @@
 import db from '../config/database.js';
 
 export const postCategoria = async (req, res) => {
-  console.log('Solicitud recibida en postCategoria:', req.body); // Log para depurar
-  const { nombreCategoriaProductos } = req.body;
+  console.log('Solicitud recibida en postCategoria:', req.body);
+  const { nombreCategoriaProductos, imagenCategoriaProductos, estado } = req.body;
 
   if (!nombreCategoriaProductos) {
     return res.status(400).json({ message: 'El nombre de la categoría es obligatorio' });
   }
 
+  if (estado && !['activo', 'inactivo'].includes(estado)) {
+    return res.status(400).json({ message: 'Estado inválido' });
+  }
+
   try {
-    const queryCategoria = 'SELECT idCat_productos, nombreCategoriaProductos FROM Cat_productos WHERE nombreCategoriaProductos = ?';
+    const queryCategoria = 'SELECT idCat_productos FROM Cat_productos WHERE nombreCategoriaProductos = ?';
     db.query(queryCategoria, [nombreCategoriaProductos], (errorCategoria, resultsCategoria) => {
       if (errorCategoria) {
         console.error('Error al verificar la categoría:', errorCategoria.message);
@@ -20,8 +24,8 @@ export const postCategoria = async (req, res) => {
         return res.status(400).json({ message: 'La categoría ya existe' });
       }
 
-      const queryInsert = 'INSERT INTO Cat_productos (nombreCategoriaProductos) VALUES (?)';
-      db.query(queryInsert, [nombreCategoriaProductos], (errorInsert, resultsInsert) => {
+      const queryInsert = 'INSERT INTO Cat_productos (nombreCategoriaProductos, imagenCategoriaProductos, estado) VALUES (?, ?, ?)';
+      db.query(queryInsert, [nombreCategoriaProductos, imagenCategoriaProductos || null, estado || 'activo'], (errorInsert, resultsInsert) => {
         if (errorInsert) {
           console.error('Error al crear la categoría:', errorInsert.message);
           return res.status(500).json({ message: 'Error al crear la categoría', error: errorInsert.message });
@@ -30,7 +34,9 @@ export const postCategoria = async (req, res) => {
         res.status(201).json({
           message: 'Categoría creada exitosamente',
           id: resultsInsert.insertId,
-          nombreCategoriaProductos
+          nombreCategoriaProductos,
+          imagenCategoriaProductos: imagenCategoriaProductos || null,
+          estado: estado || 'activo'
         });
       });
     });
@@ -79,10 +85,14 @@ export const obtenerCategoriaPorId = async (req, res) => {
 
 export const actualizarCategoria = async (req, res) => {
   const { id } = req.params;
-  const { nombreCategoriaProductos } = req.body;
+  const { nombreCategoriaProductos, imagenCategoriaProductos, estado } = req.body;
 
   if (!nombreCategoriaProductos) {
     return res.status(400).json({ message: 'El nombre de la categoría es obligatorio' });
+  }
+
+  if (estado && !['activo', 'inactivo'].includes(estado)) {
+    return res.status(400).json({ message: 'Estado inválido' });
   }
 
   try {
@@ -97,8 +107,8 @@ export const actualizarCategoria = async (req, res) => {
         return res.status(404).json({ message: 'Categoría no encontrada' });
       }
 
-      const queryUpdate = 'UPDATE Cat_productos SET nombreCategoriaProductos = ? WHERE idCat_productos = ?';
-      db.query(queryUpdate, [nombreCategoriaProductos, id], (errorUpdate, resultsUpdate) => {
+      const queryUpdate = 'UPDATE Cat_productos SET nombreCategoriaProductos = ?, imagenCategoriaProductos = ?, estado = ? WHERE idCat_productos = ?';
+      db.query(queryUpdate, [nombreCategoriaProductos, imagenCategoriaProductos || null, estado || 'activo', id], (errorUpdate, resultsUpdate) => {
         if (errorUpdate) {
           console.error('Error al actualizar la categoría:', errorUpdate);
           return res.status(500).json({ message: 'Error al actualizar la categoría' });
@@ -106,7 +116,7 @@ export const actualizarCategoria = async (req, res) => {
 
         res.status(200).json({
           message: 'Categoría actualizada exitosamente',
-          categoria: { idCat_productos: id, nombreCategoriaProductos }
+          categoria: { idCat_productos: id, nombreCategoriaProductos, imagenCategoriaProductos: imagenCategoriaProductos || null, estado: estado || 'activo' }
         });
       });
     });
@@ -115,44 +125,36 @@ export const actualizarCategoria = async (req, res) => {
   }
 };
 
-export const eliminarCategoria = async (req, res) => {
-  console.log('Solicitud recibida en eliminarCategoria:', req.params); // Log para depurar
+export const actualizarEstadoCategoria = async (req, res) => {
   const { id } = req.params;
+  const { estado } = req.body;
+
+  if (!['activo', 'inactivo'].includes(estado)) {
+    return res.status(400).json({ message: 'Estado inválido' });
+  }
 
   try {
-    // Verificar si la categoría existe
     const queryCategoria = 'SELECT idCat_productos FROM Cat_productos WHERE idCat_productos = ?';
     db.query(queryCategoria, [id], (errorCategoria, resultsCategoria) => {
       if (errorCategoria) {
-        console.error('Error al verificar la categoría:', errorCategoria.message);
-        return res.status(500).json({ message: 'Error al verificar la categoría', error: errorCategoria.message });
+        console.error('Error al verificar la categoría:', errorCategoria);
+        return res.status(500).json({ message: 'Error al verificar la categoría' });
       }
 
       if (resultsCategoria.length === 0) {
         return res.status(404).json({ message: 'Categoría no encontrada' });
       }
 
-      // Verificar si hay productos asociados
-      const queryProductos = 'SELECT idProductos FROM productos WHERE Cat_productos_idCat_productos = ?';
-      db.query(queryProductos, [id], (errorProductos, resultsProductos) => {
-        if (errorProductos) {
-          console.error('Error al verificar productos asociados:', errorProductos.message);
-          return res.status(500).json({ message: 'Error al verificar productos asociados', error: errorProductos.message });
+      const queryUpdate = 'UPDATE Cat_productos SET estado = ? WHERE idCat_productos = ?';
+      db.query(queryUpdate, [estado, id], (errorUpdate, resultsUpdate) => {
+        if (errorUpdate) {
+          console.error('Error al actualizar el estado:', errorUpdate);
+          return res.status(500).json({ message: 'Error al actualizar el estado' });
         }
 
-        if (resultsProductos.length > 0) {
-          return res.status(400).json({ message: 'No se puede eliminar la categoría porque tiene productos asociados' });
-        }
-
-        // Eliminar la categoría
-        const queryDelete = 'DELETE FROM Cat_productos WHERE idCat_productos = ?';
-        db.query(queryDelete, [id], (errorDelete, resultsDelete) => {
-          if (errorDelete) {
-            console.error('Error al eliminar la categoría:', errorDelete.message);
-            return res.status(500).json({ message: 'Error al eliminar la categoría', error: errorDelete.message });
-          }
-
-          res.status(200).json({ message: 'Categoría eliminada exitosamente' });
+        res.status(200).json({
+          message: 'Estado actualizado exitosamente',
+          categoria: { idCat_productos: id, estado }
         });
       });
     });
