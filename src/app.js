@@ -10,6 +10,7 @@ import routerClientes from './routes/clientes.routes.js'
 import routerLogin from './routes/login.routes.js'
 import routerVentas from './routes/ventas.routes.js'
 import cors from 'cors'
+import routerMensajes from './routes/mensajes.routes.js'
 
 
 
@@ -57,6 +58,8 @@ app.use('/api/clientes', routerClientes)
 app.use('/api/empleados', routerEmpleados) 
 app.use('/api/login',routerLogin)
 app.use('/api/ventas', routerVentas)
+app.use('/api/mensajes',routerMensajes)
+
 
 
 //Iniciamos el servidor
