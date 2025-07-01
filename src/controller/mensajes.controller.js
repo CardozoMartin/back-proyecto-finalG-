@@ -17,16 +17,28 @@ export const obtenerMensaje = async (req, res) => {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
     }
 }
-
 export const enviarMensaje = async (req, res) => {
     try {
         const { nombreMensaje, correoMensaje, telefonoMensaje, mensajeTexto } = req.body;
 
+        // Validar campos vacíos
         if (!nombreMensaje || !correoMensaje || !telefonoMensaje || !mensajeTexto) {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
 
-        const queryInsert = 'INSERT INTO mensajes (nombreMensaje, correoMensaje, telefonoMensaje, mensajeTexto) VALUES (?, ?, ?,?)';
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correoMensaje)) {
+            return res.status(400).json({ message: 'Correo electrónico no válido' });
+        }
+
+        // Validar teléfono: exactamente 10 dígitos numéricos
+        const telefonoRegex = /^\d{10}$/;
+        if (!telefonoRegex.test(telefonoMensaje)) {
+            return res.status(400).json({ message: 'El teléfono debe tener exactamente 10 dígitos numéricos' });
+        }
+
+        const queryInsert = 'INSERT INTO mensajes (nombreMensaje, correoMensaje, telefonoMensaje, mensajeTexto) VALUES (?, ?, ?, ?)';
         const values = [nombreMensaje, correoMensaje, telefonoMensaje, mensajeTexto];
 
         db.query(queryInsert, values, (errorInsert, resultsInsert) => {
@@ -40,9 +52,8 @@ export const enviarMensaje = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: 'Error del servidor', error: error.message });
-    }   
+    }
 }
-
 export const marcarMensajeComoVisto = async (req, res) => {
   try {
     const { id } = req.params;
