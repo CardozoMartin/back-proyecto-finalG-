@@ -1,3 +1,4 @@
+
 //Aca iran todas las importaciones
 import express from 'express'
 import db from './config/database.js'
@@ -20,39 +21,34 @@ dotenv.config()
 
 
 //creamos la conexion a la base de datos antes que inicie el servidor
+
 db.connect((err) => {
-    if (err) {
-        console.error('Error de conexión: ❌', err);
-        return;
-    }
-    console.log('✅Conexión a MySQL exitosa 🚀');
-})
+  if (err) {
+    console.error('Error de conexión: ❌', err);
+    return;
+  }
+  console.log('✅ Conexión a MySQL exitosa 🚀');
+});
 
+// Inicializamos Express
+const app = express();
 
-
-//inicializamos la variable express
-const app = express()
-
-//configuramos los cors para los permisos de acceso
+// Configuramos CORS
 app.use(cors({
-    origin: '*', // Permite todas las solicitudes de origen
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-    allowedHeaders: ['Content-Type', 'Authorization'] // Encabezados permitidos
+  origin: 'http://localhost:5173', // Origen del frontend (Vite)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Añadimos PATCH
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Configuramos el puerto
+const PORT = process.env.PORT || 3000;
 
-// creamos el puerto
-const PORT = process.env.PORT || 3000
+// Middleware para leer JSON
+app.use(express.json());
 
-//dejamos la app configurada para leer archivos json y otras configuraciones que indicaremos mas adelante
-app.use(express.json())
-
-
-//importamos las rutas
-
-
-app.use('/api/proveedores', routerProveedores)
+// Rutas
 app.use('/api/productos', routerProductos);
+app.use('/api/proveedores', routerProveedores);
 app.use('/api/categorias', routerCategorias);
 app.use('/api/clientes', routerClientes)
 app.use('/api/empleados', routerEmpleados) 
@@ -62,7 +58,8 @@ app.use('/api/mensajes',routerMensajes)
 
 
 
-//Iniciamos el servidor
+
+// Iniciamos el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT} ✅`)
-})
+  console.log(`Servidor corriendo en el puerto ${PORT} ✅`);
+});
